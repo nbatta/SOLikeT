@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 from pkg_resources import resource_filename
-import pyccl as ccl
+#import pyccl as ccl
 
 from ..poisson import PoissonLikelihood
 from . import massfunc as mf
@@ -24,7 +24,7 @@ class ClusterLikelihood(PoissonLikelihood):
     name = "Clusters"
     columns = ["tsz_signal", "z", "tsz_signal_err"]
     data_path = resource_filename("soliket", "clusters/data/selFn_equD56")
-    data_name = resource_filename("soliket", "clusters/data/ACTPol_Cond_scatv5.fits")
+    data_name = resource_filename("soliket", "clusters/data/E-D56Clusters.fits")#ACTPol_Cond_scatv5.fits")
 
     def initialize(self):
         self.zarr = np.arange(0, 2, 0.05)
@@ -58,7 +58,7 @@ class ClusterLikelihood(PoissonLikelihood):
         return model
 
     def _get_catalog(self):
-        self.survey = SurveyData(self.data_path, self.data_name, szarMock=True)
+        self.survey = SurveyData(self.data_path, self.data_name, szarMock=False)
 
         self.szutils = szutils(self.survey)
 
@@ -106,10 +106,15 @@ class ClusterLikelihood(PoissonLikelihood):
 
         return hmf
 
-    def _get_param_vals(self):
+    def _get_param_vals(self, **kwargs):
+        #Read in scaling relation parameters
+        #scat = kwargs['scat']
+        #massbias = kwargs['massbias']
+        #B0 = kwargs['B']
         B0 = 0.08
         scat = 0.2
         massbias = 1.0
+
         H0 = self.theory.get_param("H0")
         ob = self._get_ob()
         om = self._get_om()
@@ -118,7 +123,7 @@ class ClusterLikelihood(PoissonLikelihood):
 
     def _get_rate_fn(self, **kwargs):
         HMF = self._get_HMF()
-        param_vals = self._get_param_vals()
+        param_vals = self._get_param_vals(**kwargs)
 
         Ez_fn = self._get_Ez_interpolator()
         DA_fn = self._get_DAz_interpolator()
@@ -139,9 +144,6 @@ class ClusterLikelihood(PoissonLikelihood):
             dn_dzdm = 10 ** np.squeeze(dn_dzdm_interp(c_z, np.log10(HMF.M))) * h ** 4.0
 
             ans = np.trapz(dn_dzdm * Pfunc_ind, dx=np.diff(HMF.M, axis=0), axis=0)
-            # import pdb
-
-            # pdb.set_trace()
             return ans
 
         return Prob_per_cluster
@@ -161,7 +163,7 @@ class ClusterLikelihood(PoissonLikelihood):
         # def Ntot_survey(self,int_HMF,fsky,Ythresh,param_vals):
 
         HMF = self._get_HMF()
-        param_vals = self._get_param_vals()
+        param_vals = self._get_param_vals(**kwargs)
         Ez_fn = self._get_Ez_interpolator()
         DA_fn = self._get_DAz_interpolator()
 
@@ -178,13 +180,30 @@ class ClusterLikelihood(PoissonLikelihood):
             N_z = np.trapz(dn_dzdm * Pfunc, dx=np.diff(HMF.M[:, None] / h, axis=0), axis=0)
             Ntot += np.trapz(N_z * dVdz, x=z_arr) * 4.0 * np.pi * self.survey.fskytotal * frac
 
-        # To test Mass function against Nemo.
-        # Pfunc = 1.
-        # N_z = np.trapz(dn_dzdm * Pfunc, dx=np.diff(HMF.M[:, None]/h, axis=0), axis=0)
-        # Ntot = np.trapz(N_z * dVdz, x=z_arr) * 4.0 * np.pi * (600./(4*np.pi * (180/np.pi)**2))
-        # print("Ntot", Ntot)
+        return Ntot
+
+    def _test_n_tot(self, **kwargs):
+
+        HMF = self._get_HMF()
+        param_vals = self._get_param_vals(**kwargs)
+        Ez_fn = self._get_Ez_interpolator()
+        DA_fn = self._get_DAz_interpolator()
+
+        z_arr = self.zarr
+
+        h = self.theory.get_param("H0") / 100.0
+
+        Ntot = 0
+        dVdz = self._get_dVdz()
+        dn_dzdm = HMF.dn_dM(HMF.M, 500.0) * h ** 4.0  # getting rid of hs 
+        # Test Mass function against Nemo.
+        Pfunc = 1.                                                                                                                                                                   
+        N_z = np.trapz(dn_dzdm * Pfunc, dx=np.diff(HMF.M[:, None]/h, axis=0), axis=0)
+        Ntot = np.trapz(N_z * dVdz, x=z_arr) * 4.0 * np.pi * (600./(4*np.pi * (180/np.pi)**2))                                                                                       
 
         return Ntot
+
+
 
     # def logp(self, *args, **kwargs):
     #     return super().logp(*args, **kwargs)

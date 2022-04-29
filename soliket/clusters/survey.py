@@ -4,6 +4,7 @@ import numpy as np
 from scipy import interpolate
 import astropy.io.fits as pyfits
 # from astLib import astWCS
+from astropy.wcs import WCS
 from astropy.io import fits
 import astropy.table as atpy
 
@@ -17,6 +18,7 @@ def read_clust_cat(fitsfile, qmin):
     Y0 = data.field("y0tilde")
     Y0err = data.field("y0tilde_err")
     ind = np.where(SNR >= qmin)[0]
+    print ("num clust ",np.shape(ind),qmin)
     return z[ind], zerr[ind], Y0[ind], Y0err[ind]
 
 
@@ -53,7 +55,7 @@ def loadAreaMask(extName, DIR):
     """
     areaImg = pyfits.open(os.path.join(DIR, "areaMask%s.fits.gz" % (extName)))
     areaMap = areaImg[0].data
-    wcs = astWCS.WCS(areaImg[0].header, mode="pyfits")
+    wcs = WCS(areaImg[0].header)#, mode="pyfits")
     areaImg.close()
 
     return areaMap, wcs
@@ -65,7 +67,7 @@ def loadRMSmap(extName, DIR):
     """
     areaImg = pyfits.open(os.path.join(DIR, "RMSMap_Arnaud_M2e14_z0p4%s.fits.gz" % (extName)))
     areaMap = areaImg[0].data
-    wcs = astWCS.WCS(areaImg[0].header, mode="pyfits")
+    wcs = WCS(areaImg[0].header)#, mode="pyfits")
     areaImg.close()
 
     return areaMap, wcs
@@ -119,9 +121,7 @@ class SurveyData:
             self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_mock_cat(ClusterCat, self.qmin)
         else:
             print("real catalog")
-            self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_clust_cat(
-                ClusterCat, self.qmin
-            )
+            self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_clust_cat(ClusterCat, self.qmin)
 
         if tiles:
             self.filetile = self.nemodir + "tileAreas.txt"

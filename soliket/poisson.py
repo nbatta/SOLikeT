@@ -23,6 +23,11 @@ class PoissonLikelihood(Likelihood):
         catalog = pd.read_csv(self.data_path)
         return catalog
 
+    def _get_param_vals(self, **params_values):
+        """Returns scaling relation parameters.
+        """
+        raise NotImplementedError
+
     def _get_rate_fn(self, **kwargs):
         """Returns a callable rate function that takes each of 'columns' as kwargs.
         """
@@ -34,6 +39,7 @@ class PoissonLikelihood(Likelihood):
         raise NotImplementedError
 
     def logp(self, **params_values):
+        params = self._get_param_vals(**params_values)
         rate_fn = self._get_rate_fn(**params_values)
         n_expected = self._get_n_expected(**params_values)
         return self.data.loglike(rate_fn, n_expected)

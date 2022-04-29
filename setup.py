@@ -24,9 +24,10 @@ setup(
         "scikit-learn",
         "cobaya",
         "sacc",
-        "pyccl",
-        "fgspectra @ git+https://github.com/simonsobs/fgspectra@master#egg=fgspectra",
-        "mflike @ git+https://github.com/simonsobs/lat_mflike"
+        #"pyccl",
+        #"fgspectra @ git+https://github.com/simonsobs/fgspectra@act_sz_x_cib#egg=fgspectra"
+        #"fgspectra @ git+https://github.com/simonsobs/fgspectra@act_sz_x_cib#egg=fgspectra",
+        #"mflike @ git+https://github.com/simonsobs/lat_mflike"
     ],
     test_suite="soliket.tests",
 )

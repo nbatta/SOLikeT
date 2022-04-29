@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 
-@pytest.mark.skip(reason="Under development")
+#@pytest.mark.skip(reason="Under development")
 def test_clusters():
     fiducial_params = {
         "ombh2": 0.02225,
@@ -29,7 +29,7 @@ def test_clusters():
                     "dark_energy_model": "ppf",
                 }
             },
-            "soliket.CCL": {"stop_at_error": True},
+            #"soliket.CCL": {"stop_at_error": True},
         },
     }
 
