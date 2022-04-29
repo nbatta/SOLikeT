@@ -47,3 +47,5 @@ def test_clusters():
     like = model_fiducial.likelihood["soliket.ClusterLikelihood"]
 
     assert like._get_n_expected() > 40
+
+test_clusters()

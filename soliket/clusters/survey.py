@@ -48,6 +48,17 @@ def read_matt_mock_cat(fitsfile, qmin):
     ind = np.where(SNR >= qmin)[0]
     return z[ind], zerr[ind], Y0[ind], Y0err[ind]
 
+def read_matt_cat(fitsfile, qmin):
+    list = fits.open(fitsfile)
+    data = list[1].data
+    z = data.field("redshift")
+    zerr = data.field("redshiftErr")
+    Y0 = data.field("fixed_y_c")
+    Y0err = data.field("fixed_err_y_c")
+    SNR = data.field("fixed_SNR")
+    ind = np.where(SNR >= qmin)[0]
+    return z[ind], zerr[ind], Y0[ind], Y0err[ind]
+
 
 def loadAreaMask(extName, DIR):
     """Loads the survey area mask (i.e., after edge-trimming and point source masking, produced by nemo).
@@ -108,7 +119,7 @@ def loadQ(source, tileNames=None):
 
 
 class SurveyData:
-    def __init__(self, nemoOutputDir, ClusterCat, qmin=5.6, szarMock=False, tiles=False, num_noise_bins=20):
+    def __init__(self, nemoOutputDir, ClusterCat, qmin=5.6, szarMock=False, MattMock=False, tiles=False, num_noise_bins=20):
         self.nemodir = nemoOutputDir
 
         self.tckQFit = loadQ(self.nemodir + "/QFit.fits")
@@ -119,12 +130,16 @@ class SurveyData:
         if szarMock:
             print("mock catalog")
             self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_mock_cat(ClusterCat, self.qmin)
+        elif MattMock:
+            print("Matt mock catalog")
+            self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_matt_cat(ClusterCat, self.qmin)
         else:
             print("real catalog")
             self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_clust_cat(ClusterCat, self.qmin)
 
+
         if tiles:
-            self.filetile = self.nemodir + "tileAreas.txt"
+            self.filetile = self.nemodir + "/tileAreas.txt"
             self.tilenames = np.loadtxt(self.filetile, dtype=np.str, usecols=0, unpack=True)
             self.tilearea = np.loadtxt(self.filetile, dtype=np.float, usecols=1, unpack=True)
 
