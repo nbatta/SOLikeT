@@ -23,10 +23,10 @@ class SZModel:
 class ClusterLikelihood(PoissonLikelihood):
     name = "Clusters"
     columns = ["tsz_signal", "z", "tsz_signal_err"]
-    data_path = resource_filename("soliket", "clusters/data/selFn_equD56")
-    #data_path = resource_filename("soliket", "clusters/data/selFn_SO")
-    data_name = resource_filename("soliket", "clusters/data/E-D56Clusters.fits")#ACTPol_Cond_scatv5.fits")
-    #data_name = resource_filename("soliket", "clusters/data/MFMF_WebSkyHalos_A10tSZ_3freq_tiles_mass.fits")
+    #data_path = resource_filename("soliket", "clusters/data/selFn_equD56")
+    data_path = resource_filename("soliket", "clusters/data/selFn_SO")
+    #data_name = resource_filename("soliket", "clusters/data/E-D56Clusters.fits")#ACTPol_Cond_scatv5.fits")
+    data_name = resource_filename("soliket", "clusters/data/MFMF_WebSkyHalos_A10tSZ_3freq_tiles_mass.fits")
 
     def initialize(self):
         self.zarr = np.arange(0, 2, 0.05)
@@ -60,7 +60,7 @@ class ClusterLikelihood(PoissonLikelihood):
         return model
 
     def _get_catalog(self):
-        self.survey = SurveyData(self.data_path, self.data_name, MattMock=False,tiles=False)
+        self.survey = SurveyData(self.data_path, self.data_name, MattMock=True,tiles=True)
 
         self.szutils = szutils(self.survey)
 
