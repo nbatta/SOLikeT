@@ -59,7 +59,6 @@ def read_matt_cat(fitsfile, qmin):
     ind = np.where(SNR >= qmin)[0]
     return z[ind], zerr[ind], Y0[ind], Y0err[ind]
 
-
 def loadAreaMask(extName, DIR):
     """Loads the survey area mask (i.e., after edge-trimming and point source masking, produced by nemo).
     Returns map array, wcs
@@ -136,7 +135,6 @@ class SurveyData:
         else:
             print("real catalog")
             self.clst_z, self.clst_zerr, self.clst_y0, self.clst_y0err = read_clust_cat(ClusterCat, self.qmin)
-
 
         if tiles:
             self.filetile = self.nemodir + "/tileAreas.txt"
