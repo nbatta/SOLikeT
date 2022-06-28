@@ -48,4 +48,6 @@ def test_clusters():
 
     assert like._get_n_expected() > 40
 
+    print(lnl)
+
 test_clusters()
