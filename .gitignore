@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+soliket/clusters/data/selFn_SO/stitched_RMSMap_Arnaud_M2e14_z0p4.fits
+
 # Distribution / packaging
 .Python
 build/
